@@ -6,14 +6,13 @@
 
 <script>
 export default {
-
+  name: 'MyButton'
 }
 </script>
 
 <style scoped>
 .btn {
   cursor: pointer;
-  margin-top: 10px;
   padding: 10px 15px;
   background: none;
   color: teal;
