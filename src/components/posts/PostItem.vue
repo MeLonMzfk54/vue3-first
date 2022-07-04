@@ -7,7 +7,11 @@
       <div><strong>Описание:</strong> {{ post.body ? post.body : 'Нет описания' }}</div>
     </div>
     <div class="post__btns">
-      <my-button>Удалить</my-button>
+      <my-button
+          @click="$emit('remove', post)"
+      >
+        Удалить
+      </my-button>
     </div>
   </div>
 </template>

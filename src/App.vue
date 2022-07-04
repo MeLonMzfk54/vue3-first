@@ -4,6 +4,7 @@
         @create="createPost"
     />
     <PostList
+        @remove="removePost"
         :posts="posts"
     />
   </div>
@@ -28,9 +29,10 @@ export default {
   },
   methods: {
     createPost(post, ...args){
-      console.log('post - ', post);
-      console.log('args - ', args);
       this.posts.push(post);
+    },
+    removePost(post) {
+      this.posts = this.posts.filter(p => p.id !== post.id);
     }
   }
 }
