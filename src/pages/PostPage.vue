@@ -23,7 +23,7 @@
         v-if="!loading"
     />
     <div v-else>Идет загрузка...</div>
-    <div ref="observer" class="posts-observer"></div>
+    <div v-intersection="loadMorePosts" class="posts-observer"></div>
     <!--    <my-pagination-->
     <!--      :page-count="totalPages"-->
     <!--      :page="page"-->
@@ -65,17 +65,6 @@ export default {
   },
   mounted() {
     this.fetchPosts();
-    const options = {
-      rootMargin: '0px',
-      threshold: 1.0
-    }
-    const callback = (entries, observer) => {
-      if (entries[0].isIntersecting && this.page < this.totalPages) {
-        this.loadMorePosts()
-      }
-    };
-    const observer = new IntersectionObserver(callback, options);
-    observer.observe(this.$refs.observer)
   },
   methods: {
     createPost(post, ...args){
