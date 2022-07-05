@@ -1,6 +1,10 @@
 <template>
   <div class="app">
     <h1>Страница с постами</h1>
+    <my-input
+        v-model:value="searchQuery"
+        placeholder="Поиск"
+    />
     <div class="app__buttons">
       <my-button @click="dialogVisible = true">Создать пост</my-button>
       <my-select
@@ -15,7 +19,7 @@
     </my-dialog>
     <PostList
         @remove="removePost"
-        :posts="sortedPosts"
+        :posts="sortedAndSearchedPosts"
         v-if="!loading"
     />
     <div v-else>Идет загрузка...</div>
@@ -44,7 +48,8 @@ export default {
       sortOptions: [
         {value: 'title', name: 'По названию'},
         {value: 'body', name: 'По описанию'},
-      ]
+      ],
+      searchQuery: '',
     }
   },
   mounted() {
@@ -73,15 +78,18 @@ export default {
   computed: {
     sortedPosts() {
       return [...this.posts].sort((post1, post2) => post1[this.selectedSort]?.localeCompare(post2[this.selectedSort]))
+    },
+    sortedAndSearchedPosts() {
+      return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
     }
   },
-  watch: {
-    selectedSort(newValue) {
-      this.posts.sort((post1, post2) => {
-        return post1[newValue]?.localeCompare(post2[newValue]);
-      })
-    }
-  }
+  // watch: {
+  //   selectedSort(newValue) {
+  //     this.posts.sort((post1, post2) => {
+  //       return post1[newValue]?.localeCompare(post2[newValue]);
+  //     })
+  //   }
+  // }
 }
 </script>
 
