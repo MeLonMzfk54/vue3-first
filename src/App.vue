@@ -23,6 +23,11 @@
         v-if="!loading"
     />
     <div v-else>Идет загрузка...</div>
+    <my-pagination
+      :page-count="totalPages"
+      :page="page"
+      @changePage="page = $event"
+    />
   </div>
 </template>
 
@@ -32,9 +37,11 @@ import PostForm from "@/components/posts/PostForm";
 import MyDialog from "@/components/UI/MyDialog";
 import axios from 'axios'
 import MySelect from "@/components/UI/MySelect";
+import MyPagination from "@/components/UI/MyPagination";
 
 export default {
   components: {
+    MyPagination,
     MySelect,
     MyDialog,
     PostForm, PostList
@@ -50,6 +57,9 @@ export default {
         {value: 'body', name: 'По описанию'},
       ],
       searchQuery: '',
+      page: 1,
+      limit: 10,
+      totalPages: 1,
     }
   },
   mounted() {
@@ -66,14 +76,20 @@ export default {
     async fetchPosts() {
       this.loading = true;
       try {
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+          params: {
+            _page: this.page,
+            _limit: this.limit
+          }
+        });
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit)
         this.posts = response.data
       } catch (e) {
         console.log('error while fetching posts - ', e);
       } finally {
         this.loading = false;
       }
-    }
+    },
   },
   computed: {
     sortedPosts() {
@@ -83,13 +99,11 @@ export default {
       return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
     }
   },
-  // watch: {
-  //   selectedSort(newValue) {
-  //     this.posts.sort((post1, post2) => {
-  //       return post1[newValue]?.localeCompare(post2[newValue]);
-  //     })
-  //   }
-  // }
+  watch: {
+    page(newValue) {
+      this.fetchPosts()
+    }
+  }
 }
 </script>
 
