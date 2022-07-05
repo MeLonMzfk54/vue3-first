@@ -23,11 +23,12 @@
         v-if="!loading"
     />
     <div v-else>Идет загрузка...</div>
-    <my-pagination
-      :page-count="totalPages"
-      :page="page"
-      @changePage="page = $event"
-    />
+    <div ref="observer" class="posts-observer"></div>
+<!--    <my-pagination-->
+<!--      :page-count="totalPages"-->
+<!--      :page="page"-->
+<!--      @changePage="page = $event"-->
+<!--    />-->
   </div>
 </template>
 
@@ -37,11 +38,11 @@ import PostForm from "@/components/posts/PostForm";
 import MyDialog from "@/components/UI/MyDialog";
 import axios from 'axios'
 import MySelect from "@/components/UI/MySelect";
-import MyPagination from "@/components/UI/MyPagination";
+// import MyPagination from "@/components/UI/MyPagination";
 
 export default {
   components: {
-    MyPagination,
+    // MyPagination,
     MySelect,
     MyDialog,
     PostForm, PostList
@@ -64,6 +65,17 @@ export default {
   },
   mounted() {
     this.fetchPosts();
+    const options = {
+      rootMargin: '0px',
+      threshold: 1.0
+    }
+    const callback = (entries, observer) => {
+      if (entries[0].isIntersecting && this.page < this.totalPages) {
+        this.loadMorePosts()
+      }
+    };
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(this.$refs.observer)
   },
   methods: {
     createPost(post, ...args){
@@ -90,6 +102,21 @@ export default {
         this.loading = false;
       }
     },
+    async loadMorePosts() {
+      try {
+        this.page += 1;
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+          params: {
+            _page: this.page,
+            _limit: this.limit
+          }
+        });
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit)
+        this.posts = [...this.posts, ...response.data]
+      } catch (e) {
+        console.log('error while fetching posts - ', e);
+      }
+    },
   },
   computed: {
     sortedPosts() {
@@ -99,11 +126,11 @@ export default {
       return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
     }
   },
-  watch: {
-    page(newValue) {
-      this.fetchPosts()
-    }
-  }
+  // watch: {
+  //   page(newValue) {
+  //     this.fetchPosts()
+  //   }
+  // }
 }
 </script>
 
@@ -121,5 +148,9 @@ export default {
      display: flex;
      justify-content: space-between;
    }
+ }
+
+ .posts-observer {
+   height: 30px;
  }
 </style>
