@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <h1>Страница с постами</h1>
-    <my-button @click="dialogVisible = true">Создать пост</my-button>
+    <my-button style="margin: 15px 0" @click="dialogVisible = true">Создать пост</my-button>
     <my-dialog v-model:show="dialogVisible">
       <PostForm
           @create="createPost"
@@ -10,7 +10,9 @@
     <PostList
         @remove="removePost"
         :posts="posts"
+        v-if="!loading"
     />
+    <div v-else>Идет загрузка...</div>
   </div>
 </template>
 
@@ -18,6 +20,7 @@
 import PostList from "@/components/posts/PostList";
 import PostForm from "@/components/posts/PostForm";
 import MyDialog from "@/components/UI/MyDialog";
+import axios from 'axios'
 
 export default {
   components: {
@@ -26,13 +29,13 @@ export default {
   },
   data() {
     return {
-      posts: [
-        {id: 1, title: 'title1', body: 'description of post 1'},
-        {id: 2, title: 'title2', body: 'description of post 2'},
-        {id: 3, title: 'title3', body: 'description of post 3'},
-      ],
+      posts: [],
       dialogVisible: false,
+      loading: false,
     }
+  },
+  mounted() {
+    this.fetchPosts();
   },
   methods: {
     createPost(post, ...args){
@@ -41,6 +44,17 @@ export default {
     },
     removePost(post) {
       this.posts = this.posts.filter(p => p.id !== post.id);
+    },
+    async fetchPosts() {
+      this.loading = true;
+      try {
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        this.posts = response.data
+      } catch (e) {
+        console.log('error while fetching posts - ', e);
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
