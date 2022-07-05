@@ -3,6 +3,7 @@
     <div @click="$router.push('/')">Vue 3 first</div>
     <div class="navbar__btns">
       <my-button @click="$router.push('/posts')">Посты</my-button>
+      <my-button @click="$router.push('/postsComposition')">Посты c композишн апи</my-button>
       <my-button @click="$router.push('/about')">О сайте</my-button>
     </div>
   </div>
